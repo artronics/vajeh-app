@@ -20,11 +20,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install python and pip
+        run: |
+          apk install py3-pip
+          pip install invoke
+
       - name: Terraform init
-        run: terraform init
+        run: invoke terraform-init
         working-directory: terraform
 
       - name: Terraform apply
-        run: |
-          terraform apply -auto-approve
+        run: invoke terraform-apply --env=dev
         working-directory: terraform
