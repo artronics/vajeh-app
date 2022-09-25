@@ -30,13 +30,11 @@ jobs:
 
       - name: Install python and pip
         run: |
-          apk add --update docker openrc py3-pip bash
+          apk add --update bash py3-pip docker openrc
           pip install invoke
 
       - name: Terraform init
         run: invoke terraform-init
-        working-directory: terraform
 
       - name: Terraform apply
         run: invoke terraform-apply --env=dev
-        working-directory: terraform
