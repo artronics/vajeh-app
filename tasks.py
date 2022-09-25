@@ -31,6 +31,9 @@ def terraform_cmd(op, tf_vars="") -> str:
     vol = f"-v {project_root_dir()}:/app"
     ver = "latest"
 
+    print("root directory: ", project_root_dir())
+    print("docker cmd: ",
+          f"docker run {env} {vol} hashicorp/terraform:{ver} -chdir=/app/terraform {op} {ext} {tf_vars}")
     return f"docker run {env} {vol} hashicorp/terraform:{ver} -chdir=/app/terraform {op} {ext} {tf_vars}"
 
 
