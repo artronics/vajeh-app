@@ -30,7 +30,7 @@ jobs:
 
       - name: Install python and pip
         run: |
-          apk add py3-pip bash
+          apk add --update docker openrc py3-pip bash
           pip install invoke
 
       - name: Terraform init
