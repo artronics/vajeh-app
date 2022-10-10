@@ -1,6 +1,6 @@
 const shell = require('shelljs')
 
-const deployImage = 'artronics/pipeline:latest'
+const terraformImage = 'hashicorp/terraform:latest'
 
 function readAwsCred() {
   const aws_access_key_id = process.env.AWS_ACCESS_KEY_ID
@@ -25,7 +25,7 @@ function terraformCmd(operation, tfVars = '') {
   const env = `-e AWS_ACCESS_KEY_ID=${awsCred.aws_access_key_id} -e AWS_SECRET_ACCESS_KEY=${awsCred.aws_secret_access_key}`
   const vol = `-v ${projectRootDir()}:/project`
 
-  return `docker run --rm ${env} ${vol} ${deployImage} terraform -chdir=/project/terraform ${operation} ${extraOpt} ${tfVars}`
+  return `docker run --rm ${env} ${vol} ${terraformImage} -chdir=/project/terraform ${operation} ${extraOpt} ${tfVars}`
 }
 
 function isGitHubAction() {
