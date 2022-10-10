@@ -11,7 +11,7 @@ jobs:
   dry-run:
     name: Dry Run
     runs-on: ubuntu-latest
-    container: hashicorp/terraform
+#    container: hashicorp/terraform
 
     env:
       PR_NO: ${{ github.event.pull_request.number }}
@@ -24,8 +24,8 @@ jobs:
 
       - name: Install
         run: |
-          npm install -g grunt-cli
-          npm install
+          yarn global add grunt-cli
+          yarn install
       - run: |
           echo github.event.number = ${{ github.event.number  }}
           echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
@@ -36,11 +36,11 @@ jobs:
       - name: Test Grunt
         run: grunt test
 
-      - name: Terraform init
-        run: terraform init
-        working-directory: terraform
-
-      - name: Terraform plan
-        run: |
-          terraform plan
-        working-directory: terraform
+#      - name: Terraform init
+#        run: terraform init
+#        working-directory: terraform
+#
+#      - name: Terraform plan
+#        run: |
+#          terraform plan
+#        working-directory: terraform
