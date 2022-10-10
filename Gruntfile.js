@@ -34,16 +34,22 @@ function isGitHubAction() {
 
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
-    const env = grunt.option('deployment-env')
 
     if (isGitHubAction()) {
+      const ctx = grunt.option('github-context')
+      if (!ctx) {
+        grunt.fail.fatal('--github-context option is required. Pass a GITHUB object as json')
+      }
+      grunt.log.write(ctx)
       return 'dev'
+
     } else {
+      const env = grunt.option('deployment-env')
       if (!env) {
         grunt.fail.fatal('--deployment-env option is required. For local deployment it must be in a short username format')
       }
+      return env.toLowerCase().trim()
     }
-    return env.toLowerCase().trim()
   }
 
   const getWorkspace = () => {
@@ -89,6 +95,11 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', 'test pipeline', () => {
     shell.exec(terraformCmd('init'))
+  })
+
+  grunt.registerTask('foo', 'for testing locally', () => {
+    getDeploymentEnv()
+    shell.exec('ls')
   })
 
   grunt.registerTask('build', 'build project', () => {

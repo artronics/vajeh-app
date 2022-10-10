@@ -11,7 +11,6 @@ jobs:
   dry-run:
     name: Dry Run
     runs-on: ubuntu-latest
-#    container: hashicorp/terraform
 
     env:
       PR_NO: ${{ github.event.pull_request.number }}
@@ -38,13 +37,8 @@ jobs:
         name: check
 
       - name: Test Grunt
-        run: grunt test
-
-#      - name: Terraform init
-#        run: terraform init
-#        working-directory: terraform
-#
-#      - name: Terraform plan
-#        run: |
-#          terraform plan
-#        working-directory: terraform
+        env:
+          CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo $CONTEXT
+          grunt foo --github-context=$CONTEXT
