@@ -1,6 +1,6 @@
 const shell = require('shelljs')
 
-const deployImage = "artronics/pipeline:latest"
+const deployImage = 'artronics/pipeline:latest'
 
 function readAwsCred() {
   const aws_access_key_id = process.env.AWS_ACCESS_KEY_ID
@@ -28,29 +28,70 @@ function terraformCmd(operation, tfVars = '') {
   return `docker run --rm ${env} ${vol} ${deployImage} terraform -chdir=/project/terraform ${operation} ${extraOpt} ${tfVars}`
 }
 
-function makeEnv(env) {
-  if (!env) {
-    throw new Error('Deployment environment is not set')
-  }
-  return `-var=environment=${env}`
+function isGitHubAction() {
+  return (process.env.HOME.toLowerCase().includes('github'))
 }
 
 module.exports = function (grunt) {
+  const getDeploymentEnv = () => {
+    const env = grunt.option('deployment-env')
+
+    if (isGitHubAction()) {
+      return 'dev'
+    } else {
+      if (!env) {
+        grunt.fail.fatal('--deployment-env option is required. For local deployment it must be in a short username format')
+      }
+    }
+    return env.toLowerCase().trim()
+  }
+
+  const getWorkspace = () => {
+    const { stdout } = shell.exec(terraformCmd(`workspace show`), {silent: true})
+    return stdout.trim()
+  }
+
   grunt.registerTask('terraform', 'terraform command', (command) => {
     if (command === 'init') {
       grunt.log.write(terraformCmd(command))
       shell.exec(terraformCmd(command))
 
     } else if (command === 'apply' || command === 'destroy' || command === 'plan') {
-      const tfVars = makeEnv('dev')
-      shell.exec(terraformCmd(command, tfVars))
+      const env = getDeploymentEnv()
+      const ws = getWorkspace()
+      if (ws !== env) {
+        grunt.fail.fatal(`wrong workspace is selected. First switch to the right workspace: grunt workspace:select --deployment-env=${env}`)
+      }
+
+      shell.exec(terraformCmd(command))
 
     } else {
       grunt.fail.fatal(`terraform "${command}" command doesn't exist or not supported`)
     }
   })
 
+  grunt.registerTask('workspace', 'create and list terraform workspace', (operation) => {
+    const env = getDeploymentEnv()
+    if (operation === 'new') {
+      shell.exec(terraformCmd(`workspace new ${env}`))
+
+    } else if (operation === 'select') {
+      const ws = getWorkspace()
+      if (ws === env) {
+        grunt.log.warn(`workspace: ${env} is already selected`)
+      } else {
+        shell.exec(terraformCmd(`workspace select ${env}`))
+      }
+    } else {
+      grunt.log.error(`operation ${operation} is either wrong or not supported`)
+    }
+  })
+
+  grunt.registerTask('test', 'test pipeline', () => {
+    shell.exec(terraformCmd('init'))
+  })
+
   grunt.registerTask('build', 'build project', () => {
-    shell.exec("yarn run build")
+    shell.exec('yarn run build')
   })
 }
