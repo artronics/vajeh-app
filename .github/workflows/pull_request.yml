@@ -30,30 +30,16 @@ jobs:
           yarn install
           yarn global add grunt-cli
 
-      - uses: jwalton/gh-find-current-pr@v1
-        id: findPr
-        with:
-          # Can be "open", "closed", or "all".  Defaults to "open".
-          state: open
-      # This will echo "Your PR is 7", or be skipped if there is no current PR.
-      - run: echo "Your PR is ${PR}"
-        if: success() && steps.findPr.outputs.number
-        env:
-          PR: ${{ steps.findPr.outputs.pr }}
-
-      - run: |
-          echo github.event.number = ${{ github.event.number  }}
-          echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
-          echo github.event.issue.number = ${{ github.event.issue.number }}
-        name: check
       - name: Get Pull Request Number
         id: pr
         run: |
-          echo "::set-output name=pull_request_number::$(gh pr view --json number -q .number || echo "")"
+          echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
           echo "$(gh pr view --json number -q .number)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - run: echo "Your PR is ${PR}"
+        env:
+          PR: ${{ steps.pr.outputs.pr_no }}
 
       - name: Test Grunt
         env:
