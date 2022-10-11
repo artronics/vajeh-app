@@ -41,4 +41,4 @@ jobs:
           CONTEXT: ${{ toJson(github) }}
         run: |
           echo $CONTEXT
-          grunt foo --github-context=$CONTEXT
+          grunt foo --github-context="$CONTEXT"
