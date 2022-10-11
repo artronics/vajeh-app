@@ -30,14 +30,6 @@ jobs:
           yarn install
           yarn global add grunt-cli
 
-      - name: Get Pull Request Number
-        id: pr
-        run: |
-          echo "::set-output name=pull_request_number::$(gh pr view --json number -q .number || echo "")"
-          echo "$(gh pr view --json number -q .number)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: jwalton/gh-find-current-pr@v1
         id: findPr
         with:
@@ -54,6 +46,14 @@ jobs:
           echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
           echo github.event.issue.number = ${{ github.event.issue.number }}
         name: check
+      - name: Get Pull Request Number
+        id: pr
+        run: |
+          echo "::set-output name=pull_request_number::$(gh pr view --json number -q .number || echo "")"
+          echo "$(gh pr view --json number -q .number)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Test Grunt
         env:
