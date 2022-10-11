@@ -29,7 +29,7 @@ function terraformCmd(operation, tfVars = '') {
 }
 
 function isGitHubAction() {
-  return (process.env.HOME.toLowerCase().includes('github'))
+  return !!process.env.GITHUB_JOB
 }
 
 module.exports = function (grunt) {
