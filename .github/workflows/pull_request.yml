@@ -27,8 +27,9 @@ jobs:
 
       - name: Install
         run: |
-          yarn install
-          yarn global add grunt-cli
+#          yarn install
+#          yarn global add grunt-cli
+          env
 
       - name: Get Pull Request Number
         id: pr
