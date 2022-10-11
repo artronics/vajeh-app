@@ -35,10 +35,13 @@ function isGitHubAction() {
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
 
+    grunt.log.write('is github action:', isGitHubAction())
+    grunt.log.write('HOME:', process.env.HOME)
+
     if (isGitHubAction()) {
       const ctx = grunt.option('github-context')
       if (!ctx) {
-        grunt.fail.fatal('--github-context option is required. Pass a GITHUB object as json')
+        grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
       grunt.log.write(ctx)
       return 'dev'
