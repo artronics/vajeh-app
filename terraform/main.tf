@@ -19,7 +19,7 @@ provider "aws" {
   default_tags {
     tags = {
       project     = local.project
-      environment = var.environment
+      environment = local.environment
       tier        = local.tier
     }
   }
@@ -31,7 +31,7 @@ provider "aws" {
   default_tags {
     tags = {
       project     = local.project
-      environment = var.environment
+      environment = local.environment
       tier        = local.tier
     }
   }
@@ -43,7 +43,7 @@ provider "aws" {
   default_tags {
     tags = {
       project     = local.project
-      environment = var.environment
+      environment = local.environment
       tier        = local.tier
     }
   }
