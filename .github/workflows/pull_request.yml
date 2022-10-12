@@ -35,7 +35,7 @@ jobs:
       - name: Install
         run: |
           yarn install
-          yarn global add grunt-clˆi
+          yarn global add grunt-cli
 
       - name: Build
         run: grunt build

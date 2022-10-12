@@ -80,6 +80,7 @@ module.exports = function (grunt) {
       shell.exec(terraformCmd(command))
 
     } else if (command === 'apply' || command === 'destroy' || command === 'plan') {
+      // TODO: add extra protection against destroy for master branch
       const env = getDeploymentEnv()
       const ws = getWorkspace()
       if (ws !== env && !isGitHubAction()) {
