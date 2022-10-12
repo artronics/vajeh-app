@@ -42,4 +42,4 @@ jobs:
         env:
           CONTEXT: ${{ toJson(github) }}
           PR_NO: ${{ steps.pr.outputs.pr_no }}
-        run: grunt terraform:plan --github-context="${{ toJson(github) }}" --pr-no=${{ steps.pr.outputs.pr_no }}
+        run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ steps.pr.outputs.pr_no }}
