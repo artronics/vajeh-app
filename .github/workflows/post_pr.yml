@@ -35,6 +35,9 @@ jobs:
           yarn install
           yarn global add grunt-cli
 
+      - name: terraform init
+        run: grunt terraform:init
+
       - name: terraform select workspace
         run: grunt workspace:select --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
