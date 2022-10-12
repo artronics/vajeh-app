@@ -32,10 +32,6 @@ function isGitHubAction() {
   return !!process.env.GITHUB_JOB
 }
 
-function isBranchDeployment(ghContext) {
-  return ghContext['ref_type'] && ghContext['ref_type'] === 'branch'
-}
-
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
     if (isGitHubAction()) {
@@ -46,15 +42,14 @@ module.exports = function (grunt) {
       const ctx = JSON.parse(gh)
       const isBranch = ctx['ref_type'] && ctx['ref_type'] === 'branch'
       if (isBranch) {
-        if (ctx['ref_name'] === 'master') {
+        const prNo = grunt.option('pr-no').trim()
+        if (ctx['ref_name'] === 'master' && !prNo) {
           grunt.fail.fatal('Not supported yet')
 
         } else {
-          const prNo = grunt.option('pr-no').trim()
           if (!prNo) {
             grunt.fail.fatal('--pr-no option is required. It\'s the GitHub Pull Request number.')
           }
-
           return `pr${prNo}`
         }
       }
