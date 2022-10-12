@@ -17,6 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version: 16
 
       - name: Cache terraform
@@ -30,18 +31,6 @@ jobs:
           yarn install
           yarn global add grunt-cli
 
-      - run: |
-          echo github.event.number = ${{ github.event.number  }}
-          echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
-          echo github.event.issue.number = ${{ github.event.issue.number }}
-        name: check
-
-      - name: Get Pull Request Number
-        id: pr
-        run: echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build
         run: grunt build
 
@@ -49,4 +38,4 @@ jobs:
         run: grunt terraform:init
 
       - name: Test Grunt
-        run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ steps.pr.outputs.pr_no }}
+        run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
