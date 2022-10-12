@@ -90,7 +90,10 @@ module.exports = function (grunt) {
         shell.exec(terraformCmd(`workspace new ${env}`))
       }
 
-      shell.exec(terraformCmd(command))
+      const { stderr } = shell.exec(terraformCmd(command))
+      if (stderr) {
+        grunt.fail.fatal(`terraform ${command} failed:\n${stderr}`)
+      }
 
     } else {
       grunt.fail.fatal(`terraform "${command}" command doesn't exist or not supported`)
