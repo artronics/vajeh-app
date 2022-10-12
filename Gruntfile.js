@@ -42,6 +42,8 @@ module.exports = function (grunt) {
       if (!ctx) {
         grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
+      grunt.log.write('context branch', ctx['ref_type'])
+      grunt.log.write(ctx)
       if (isBranchDeployment(ctx)) {
         const prNo = grunt.option('pr-no')
         if (!prNo) {
