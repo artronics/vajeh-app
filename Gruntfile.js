@@ -31,19 +31,25 @@ function terraformCmd(operation, tfVars = '') {
 function isGitHubAction() {
   return !!process.env.GITHUB_JOB
 }
+function isBranchDeployment(ghContext) {
+  return ghContext['ref_type'] && ghContext['ref_type'] === 'branch'
+}
 
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
-
-    grunt.log.write('is github action:', isGitHubAction())
-    grunt.log.write('HOME:', process.env.HOME)
-
     if (isGitHubAction()) {
       const ctx = grunt.option('github-context')
       if (!ctx) {
         grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
-      grunt.log.write(ctx)
+      if (isBranchDeployment(ctx)) {
+        const prNo = grunt.option('pr-no')
+        if (!prNo) {
+          grunt.fail.fatal('--pr-no option is required. It\'s the GitHub Pull Request number.')
+        }
+        grunt.log.write('pr no is: ', prNo)
+      }
+
       return 'dev'
 
     } else {

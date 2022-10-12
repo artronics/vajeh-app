@@ -29,22 +29,15 @@ jobs:
         run: |
           yarn install
           yarn global add grunt-cli
-          env
 
       - name: Get Pull Request Number
         id: pr
-        run: |
-          echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
-          echo "$(gh pr view --json number -q .number)"
+        run: echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo "Your PR is ${PR}"
-        env:
-          PR: ${{ steps.pr.outputs.pr_no }}
 
       - name: Test Grunt
         env:
           CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo $CONTEXT
-          grunt foo --github-context="$CONTEXT"
+          PR_NO: ${{ steps.pr.outputs.pr_no }}
+        run: grunt foo --github-context="$CONTEXT" --pr-no="$PR_NO"
