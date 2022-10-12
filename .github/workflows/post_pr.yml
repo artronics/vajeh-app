@@ -1,17 +1,42 @@
-name: Post
+name: Post PR
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  delete-branch:
+  destroy-pr-deployment:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'yarn'
+          node-version: 16
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('yarn.lock') }}
+
       - name: Cache terraform
         uses: actions/cache@v3
         with:
           key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
           path: terraform/.terraform
+
+      - name: Install
+        run: |
+          yarn install
+          yarn global add grunt-cli
+
+      - name: terraform select workspace
+        run: grunt workspace:select --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
       - name: terraform destroy PR deployment
         run: grunt terraform:destroy --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
@@ -19,10 +44,16 @@ jobs:
       - name: terraform delete workspace
         run: grunt workspace:delete --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
+  delete-branch:
+    runs-on: ubuntu-latest
+    needs:
+      - destroy-pr-deployment
+    steps:
       - name: delete branch
         uses: SvanBoxel/delete-merged-branch@main
         with:
           delete_closed_pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 

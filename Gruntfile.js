@@ -83,11 +83,8 @@ module.exports = function (grunt) {
       // TODO: add extra protection against destroy for master branch
       const env = getDeploymentEnv()
       const ws = getWorkspace()
-      if (ws !== env && !isGitHubAction()) {
-        // In local deployment user has to create workspace explicitly
+      if (ws !== env) {
         grunt.fail.fatal(`wrong workspace is selected. First switch to the right workspace: grunt workspace:select --deployment-env=${env}`)
-      } else {
-        shell.exec(terraformCmd(`workspace new ${env}`))
       }
 
       const { stderr } = shell.exec(terraformCmd(command))
