@@ -2,10 +2,6 @@ data "aws_route53_zone" "project_hosted_zone" {
   name = local.root_domain_name
 }
 
-resource "aws_s3_bucket" "root_bucket" {
-  bucket = "delete-me-artronics"
-}
-
 module "s3-static-hosting" {
   source = "./s3-static-hosting"
   providers = {

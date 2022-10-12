@@ -7,6 +7,18 @@ jobs:
   delete-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Cache terraform
+        uses: actions/cache@v3
+        with:
+          key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
+          path: terraform/.terraform
+
+      - name: terraform destroy PR deployment
+        run: grunt terraform:destroy --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+
+      - name: terraform delete workspace
+        run: grunt workspace:delete --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+
       - name: delete branch
         uses: SvanBoxel/delete-merged-branch@main
         with:
@@ -14,16 +26,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: |
-          echo github.event.number = ${{ github.event.number  }}
-          echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
-          echo github.event.issue.number = ${{ github.event.issue.number }}
-        name: check
-
-      - name: Get Pull Request Number
-        id: pr
-        run: echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: echo ${{ steps.pr.outputs.pr_no }}

@@ -80,6 +80,7 @@ module.exports = function (grunt) {
       shell.exec(terraformCmd(command))
 
     } else if (command === 'apply' || command === 'destroy' || command === 'plan') {
+      // TODO: add extra protection against destroy for master branch
       const env = getDeploymentEnv()
       const ws = getWorkspace()
       if (ws !== env && !isGitHubAction()) {
@@ -89,7 +90,10 @@ module.exports = function (grunt) {
         shell.exec(terraformCmd(`workspace new ${env}`))
       }
 
-      shell.exec(terraformCmd(command))
+      const { stderr } = shell.exec(terraformCmd(command))
+      if (stderr) {
+        grunt.fail.fatal(`terraform ${command} failed:\n${stderr}`)
+      }
 
     } else {
       grunt.fail.fatal(`terraform "${command}" command doesn't exist or not supported`)
@@ -99,7 +103,11 @@ module.exports = function (grunt) {
   grunt.registerTask('workspace', 'create and list terraform workspace', (operation) => {
     const env = getDeploymentEnv()
     if (operation === 'new') {
-      shell.exec(terraformCmd(`workspace new ${env}`))
+      shell.exec(terraformCmd(`workspace ${operation} ${env}`))
+
+    } else if (operation === 'delete') {
+      shell.exec(terraformCmd(`workspace select default`))
+      shell.exec(terraformCmd(`workspace ${operation} ${env}`))
 
     } else if (operation === 'select') {
       const ws = getWorkspace()
@@ -108,6 +116,7 @@ module.exports = function (grunt) {
       } else {
         shell.exec(terraformCmd(`workspace select ${env}`))
       }
+
     } else {
       grunt.log.error(`operation ${operation} is either wrong or not supported`)
     }
