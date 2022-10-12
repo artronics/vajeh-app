@@ -36,8 +36,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build
+        run: grunt build
       - name: Test Grunt
         env:
           CONTEXT: ${{ toJson(github) }}
           PR_NO: ${{ steps.pr.outputs.pr_no }}
-        run: grunt foo --github-context="$CONTEXT" --pr-no="$PR_NO"
+        run: grunt terraform:plan --github-context="${{ toJson(github) }}" --pr-no=${{ steps.pr.outputs.pr_no }}

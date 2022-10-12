@@ -31,6 +31,7 @@ function terraformCmd(operation, tfVars = '') {
 function isGitHubAction() {
   return !!process.env.GITHUB_JOB
 }
+
 function isBranchDeployment(ghContext) {
   return ghContext['ref_type'] && ghContext['ref_type'] === 'branch'
 }
@@ -38,18 +39,24 @@ function isBranchDeployment(ghContext) {
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
     if (isGitHubAction()) {
-      const ctx = JSON.parse(grunt.option('github-context'))
-      if (!ctx) {
+      const gh = grunt.option('github-context')
+      if (!gh) {
         grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
-      grunt.log.write('context branch', ctx['ref_type'])
-      grunt.log.write(ctx)
-      if (isBranchDeployment(ctx)) {
-        const prNo = grunt.option('pr-no')
-        if (!prNo) {
-          grunt.fail.fatal('--pr-no option is required. It\'s the GitHub Pull Request number.')
+      const ctx = JSON.parse(gh)
+      const isInBranch = ctx['ref_type'] && ctx['ref_type'] === 'branch'
+      if (isInBranch) {
+        if (ctx['ref_name'] === 'master') {
+          grunt.fail.fatal('Not supported yet')
+
+        } else {
+          const prNo = grunt.option('pr-no').trim()
+          if (!prNo) {
+            grunt.fail.fatal('--pr-no option is required. It\'s the GitHub Pull Request number.')
+          }
+
+          return `pr${prNo}`
         }
-        grunt.log.write('pr no is: ', prNo)
       }
 
       return 'dev'
@@ -64,20 +71,22 @@ module.exports = function (grunt) {
   }
 
   const getWorkspace = () => {
-    const { stdout } = shell.exec(terraformCmd(`workspace show`), {silent: true})
+    const { stdout } = shell.exec(terraformCmd(`workspace show`), { silent: true })
     return stdout.trim()
   }
 
   grunt.registerTask('terraform', 'terraform command', (command) => {
     if (command === 'init') {
-      grunt.log.write(terraformCmd(command))
       shell.exec(terraformCmd(command))
 
     } else if (command === 'apply' || command === 'destroy' || command === 'plan') {
       const env = getDeploymentEnv()
       const ws = getWorkspace()
-      if (ws !== env) {
+      if (ws !== env && !isGitHubAction()) {
+        // In local deployment user has to create workspace explicitly
         grunt.fail.fatal(`wrong workspace is selected. First switch to the right workspace: grunt workspace:select --deployment-env=${env}`)
+      } else {
+        shell.exec(terraformCmd(`workspace new ${env}`))
       }
 
       shell.exec(terraformCmd(command))
@@ -106,11 +115,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', 'test pipeline', () => {
     shell.exec(terraformCmd('init'))
-  })
-
-  grunt.registerTask('foo', 'for testing locally', () => {
-    getDeploymentEnv()
-    shell.exec('ls')
   })
 
   grunt.registerTask('build', 'build project', () => {
