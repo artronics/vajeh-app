@@ -16,6 +16,9 @@ jobs:
       - name: terraform destroy PR deployment
         run: grunt terraform:destroy --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
+      - name: terraform delete workspace
+        run: grunt workspace:delete --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+
       - name: delete branch
         uses: SvanBoxel/delete-merged-branch@main
         with:

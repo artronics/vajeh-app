@@ -103,7 +103,11 @@ module.exports = function (grunt) {
   grunt.registerTask('workspace', 'create and list terraform workspace', (operation) => {
     const env = getDeploymentEnv()
     if (operation === 'new') {
-      shell.exec(terraformCmd(`workspace new ${env}`))
+      shell.exec(terraformCmd(`workspace ${operation} ${env}`))
+
+    } else if (operation === 'delete') {
+      shell.exec(terraformCmd(`workspace select default`))
+      shell.exec(terraformCmd(`workspace ${operation} ${env}`))
 
     } else if (operation === 'select') {
       const ws = getWorkspace()
@@ -112,6 +116,7 @@ module.exports = function (grunt) {
       } else {
         shell.exec(terraformCmd(`workspace select ${env}`))
       }
+
     } else {
       grunt.log.error(`operation ${operation} is either wrong or not supported`)
     }
