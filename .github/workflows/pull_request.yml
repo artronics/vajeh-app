@@ -2,7 +2,7 @@ name: 'Pull Request'
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ]
+    types: [opened, reopened, synchronize]
 
 jobs:
   dry-run:
@@ -43,6 +43,16 @@ jobs:
 
       - name: terraform init
         run: grunt terraform:init
+
+      - run: echo ${{ github.event.action }}
+        name: check
+
+      - name: terraform create workspace
+        run: grunt workspace:new --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+        if: ${{ github.event.action == "opened" }}
+
+      - name: terraform select workspace
+        run: grunt workspace:select --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
       - name: terraform apply
         run: grunt terraform:apply --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
