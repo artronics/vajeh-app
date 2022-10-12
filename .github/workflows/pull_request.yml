@@ -20,6 +20,12 @@ jobs:
           cache: 'yarn'
           node-version: 16
 
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('yarn.lock') }}
+
       - name: Cache terraform
         uses: actions/cache@v3
         with:
@@ -37,5 +43,5 @@ jobs:
       - name: terraform init
         run: grunt terraform:init
 
-      - name: Test Grunt
+      - name: terraform apply
         run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
