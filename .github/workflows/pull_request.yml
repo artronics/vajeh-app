@@ -11,9 +11,7 @@ jobs:
   dry-run:
     name: Dry Run
     runs-on: ubuntu-latest
-
     env:
-      PR_NO: ${{ github.event.pull_request.number }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -24,6 +22,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: Cache terraform
+        uses: actions/cache@v3
+        with:
+          key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
+          path: terraform/.terraform
 
       - name: Install
         run: |
@@ -42,14 +46,5 @@ jobs:
       - name: terraform init
         run: grunt terraform:init
 
-      - name: Cache terraform
-        uses: actions/cache@v3
-        with:
-          key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
-          path: terraform/.terraform
-
       - name: Test Grunt
-        env:
-          CONTEXT: ${{ toJson(github) }}
-          PR_NO: ${{ steps.pr.outputs.pr_no }}
         run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ steps.pr.outputs.pr_no }}
