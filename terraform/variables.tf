@@ -1,19 +1,16 @@
-variable "environment" {
-  type = string
-}
-
 locals {
   project = "vajeh"
   tier    = "frontend"
 }
 
 locals {
+  environment = terraform.workspace
   service = "app"
-  name_prefix = "${local.project}-${local.service}-${var.environment}"
+  name_prefix = "${local.project}-${local.service}-${local.environment}"
 }
 
 locals {
   root_domain_name = "vajeh.artronics.me.uk"
-  domain_name = "${var.environment}.${local.service}.${local.root_domain_name}"
+  domain_name = "${local.environment}.${local.service}.${local.root_domain_name}"
   bucket_name         = local.domain_name
 }

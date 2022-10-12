@@ -1,21 +1,3 @@
-#data "archive_file" "app_archive" {
-#  type        = "zip"
-#  source_dir  = var.build_path
-#  output_path = "build/app"
-#}
-
-#resource "null_resource" "mock-receiver_image_push" {
-#  triggers   = {
-#    src_hash = data.archive_file.app_archive.output_sha
-#  }
-#
-#  provisioner "local-exec" {
-#    command = <<EOF
-#           invoke upload-assets
-#       EOF
-#  }
-#}
-#
 locals {
   mime_types = {
     ".html" = "text/html"
@@ -27,6 +9,7 @@ locals {
     ".svg" = "image/svg+xml"
   }
 }
+
 resource "aws_s3_object" "upload_assets" {
   bucket = aws_s3_bucket.www_bucket.bucket
   for_each = fileset(var.build_path, "**")

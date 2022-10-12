@@ -25,3 +25,10 @@ yarn-error.log*
 .idea
 .venv
 .env
+
+dist/**/*
+*.tsbuildinfo
+
+node_modules
+bower_components
+Thumbs.db
