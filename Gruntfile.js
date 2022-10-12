@@ -38,7 +38,7 @@ function isBranchDeployment(ghContext) {
 module.exports = function (grunt) {
   const getDeploymentEnv = () => {
     if (isGitHubAction()) {
-      const ctx = grunt.option('github-context')
+      const ctx = JSON.parse(grunt.option('github-context'))
       if (!ctx) {
         grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
