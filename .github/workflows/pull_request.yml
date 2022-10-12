@@ -1,20 +1,16 @@
 name: 'Pull Request'
 
 on:
-  push:
+  pull_request:
     branches:
       - '**'
       - '!master'
-
 
 jobs:
   dry-run:
     name: Dry Run
     runs-on: ubuntu-latest
-    container: hashicorp/terraform
-
     env:
-      PR_NO: ${{ github.event.pull_request.number }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -22,19 +18,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Cache terraform
+        uses: actions/cache@v3
+        with:
+          key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
+          path: terraform/.terraform
+
+      - name: Install
+        run: |
+          yarn install
+          yarn global add grunt-cli
+
+      - name: Get Pull Request Number
+        id: pr
+        run: echo "::set-output name=pr_no::$(gh pr view --json number -q .number || echo "")"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - run: |
           echo github.event.number = ${{ github.event.number  }}
           echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
           echo github.event.issue.number = ${{ github.event.issue.number }}
         name: check
 
-      - name: Install python and pip
-        run: |
-          apk add --update bash py3-pip docker openrc
-          pip install invoke
+      - name: Build
+        run: grunt build
 
-      - name: Terraform init
-        run: invoke terraform-init
+      - name: terraform init
+        run: grunt terraform:init
 
-      - name: Terraform apply
-        run: invoke terraform-apply --env=dev
+      - name: Test Grunt
+        run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ steps.pr.outputs.pr_no }}
