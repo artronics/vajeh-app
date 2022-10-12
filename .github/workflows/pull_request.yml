@@ -49,7 +49,7 @@ jobs:
 
       - name: terraform create workspace
         run: grunt workspace:new --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
-        if: github.event.action == "opened"
+        if: "github.event.action == 'opened'"
 
       - name: terraform select workspace
         run: grunt workspace:select --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
