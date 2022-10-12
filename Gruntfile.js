@@ -44,8 +44,8 @@ module.exports = function (grunt) {
         grunt.fail.fatal('--github-context option is required. Pass the GITHUB object as json')
       }
       const ctx = JSON.parse(gh)
-      const isInBranch = ctx['ref_type'] && ctx['ref_type'] === 'branch'
-      if (isInBranch) {
+      const isBranch = ctx['ref_type'] && ctx['ref_type'] === 'branch'
+      if (isBranch) {
         if (ctx['ref_name'] === 'master') {
           grunt.fail.fatal('Not supported yet')
 
