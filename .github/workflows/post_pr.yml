@@ -35,6 +35,9 @@ jobs:
           yarn install
           yarn global add grunt-cli
 
+      - name: terraform select workspace
+        run: grunt workspace:select --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+
       - name: terraform destroy PR deployment
         run: grunt terraform:destroy --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
@@ -52,4 +55,5 @@ jobs:
           delete_closed_pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
