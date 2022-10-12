@@ -35,7 +35,7 @@ jobs:
       - name: Install
         run: |
           yarn install
-          yarn global add grunt-cli
+          yarn global add grunt-clˆi
 
       - name: Build
         run: grunt build
@@ -44,5 +44,5 @@ jobs:
         run: grunt terraform:init
 
       - name: terraform apply
-        run: grunt terraform:plan --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
+        run: grunt terraform:apply --github-context='${{ toJson(github) }}' --pr-no=${{ github.event.pull_request.number }}
 
