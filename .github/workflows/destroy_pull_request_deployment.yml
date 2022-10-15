@@ -1,28 +1,14 @@
-name: 'Deploy'
-
+name: Post PR
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    types: [closed]
 
 jobs:
-  deploy:
-    name: Deploy
+  destroy-pr-deployment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'yarn'
-          node-version: 16
-
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: node_modules-${{ hashFiles('yarn.lock') }}
 
       - name: Cache terraform
         uses: actions/cache@v3
@@ -30,17 +16,13 @@ jobs:
           key: terraform-${{ hashFiles('terraform/.terraform.lock.hcl') }}
           path: terraform/.terraform
 
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build
-        run: yarn run build
-
-      - name: Deploy dev
+      - name: Destroy PR deployment
         uses: artronics/terraform-flow-action@v1
         with:
-          workspace: dev
+          workspace: pr${{ github.event.pull_request.number }}
           path: terraform
+          destroy: true
+          destroy_workspace: true
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
