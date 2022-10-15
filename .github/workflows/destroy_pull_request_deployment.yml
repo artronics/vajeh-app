@@ -1,4 +1,4 @@
-name: Post PR
+name: Destroy PR deployment
 on:
   pull_request:
     types: [closed]
