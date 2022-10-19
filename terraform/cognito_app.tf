@@ -18,6 +18,8 @@ locals {
   callbacks = ["http://localhost:3000/callback"]
 }
 
+// TODO: add project specific test user to pool
+
 resource "aws_cognito_user_pool_client" "client" {
   name = "${local.name_prefix}-frontend"
 
