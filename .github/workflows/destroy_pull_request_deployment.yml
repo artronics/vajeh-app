@@ -22,6 +22,7 @@ jobs:
           workspace: pr${{ github.event.pull_request.number }}
           path: terraform
           destroy: true
+          options: "-migrate-state"
           destroy_workspace: true
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
