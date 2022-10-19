@@ -282,3 +282,30 @@ export GITHUB_CONTEXT='{ "token": "***", "job": "dry-run", "ref": "refs/heads/AP
 export GITHUB_JOB=fake_job
 grunt terraform:plan --github-context="$GITHUB_CONTEXT" --pr-no=1000
 ```
+
+clear cache job:
+```yaml
+clear-cache:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Clear cache
+      uses: actions/github-script@v6
+      with:
+        script: |
+          console.log("About to clear")
+          const caches = await github.rest.actions.getActionsCacheList({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          })
+          for (const cache of caches.data.actions_caches) {
+            console.log(cache)
+            github.rest.actions.deleteActionsCacheById({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              cache_id: cache.id,
+            })
+          }
+          console.log("Clear completed")
+```
+cache query:
+`curl -H "Accept: application/vnd.github.v3+json" -H "Authorization: token <token>" https://api.github.com/repos/artronics/vajeh-app/actions/caches`
