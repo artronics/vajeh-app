@@ -8,7 +8,7 @@ terraform {
 
   backend "s3" {
     bucket = "terraform-vajeh-frontend"
-    key    = "dev/app"
+    key = "state"
     region = "eu-west-2"
   }
 }
